@@ -23,35 +23,39 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 
 public class LonelyTwitterActivity extends Activity {
 
-	private static final String FILENAME = "file.sav";
-	private EditText bodyText;
-	private ListView oldTweetsList;
+    private static final String FILENAME = "file.sav";
+    private EditText bodyText;
+    private ListView oldTweetsList;
 
     private ArrayList<Tweet> tweetList;
     private ArrayAdapter<Tweet> adapter;
 
 
-    /** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Log.i("LifeCycle ---->", "onCreate is called");
-		setContentView(R.layout.main);
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.i("LifeCycle ---->", "onCreate is called");
+        setContentView(R.layout.main);
 
-		bodyText = (EditText) findViewById(R.id.body);
-		Button saveButton = (Button) findViewById(R.id.save);
-		oldTweetsList = (ListView) findViewById(R.id.oldTweetsList);
+        bodyText = (EditText) findViewById(R.id.body);
+        Button saveButton = (Button) findViewById(R.id.save);
+        oldTweetsList = (ListView) findViewById(R.id.oldTweetsList);
 
 
+        saveButton.setOnClickListener(new View.OnClickListener() {
 
-		saveButton.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View v) {
-				setResult(RESULT_OK);
-				String text = bodyText.getText().toString();
+            public void onClick(View v) {
+                setResult(RESULT_OK);
+                String text = bodyText.getText().toString();
 
                 Tweet tweet = new NormalTweet(text);
                 tweetList.add(tweet);
@@ -60,89 +64,58 @@ public class LonelyTwitterActivity extends Activity {
 
                 saveInFile();
 
-			}
-		});
-	}
+            }
+        });
+        Button clearButton = (Button) findViewById(R.id.clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
 
-	@Override
-	protected void onStart() {
+            public void onClick(View v) {
 
-		// TODO Auto-generated method stub
-		super.onStart();
-		Log.i("LifeCycle --->", "onStart is called");
-		String[] tweets = loadFromFile();
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				R.layout.list_item, tweets);
-		oldTweetsList.setAdapter(adapter);
+                tweetList.clear();
 
-        NormalTweet normalTweet = new NormalTweet("");
+                adapter.notifyDataSetChanged();
+
+                saveInFile();
+
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        // TODO Auto-generated method stub
+        super.onStart();
+        Log.i("LifeCycle --->", "onStart is called");
+        loadFromFile();
+        adapter = new ArrayAdapter<Tweet>(this, R.layout.list_item, tweetList);
+
+        oldTweetsList.setAdapter(adapter);
+    }
+
+
+
+    private void loadFromFile() {
+
         try {
-            normalTweet.setMessage("Hello World!");
-//            normalTweet.setMessage("aaaaaaaa123904ifkdjfhirhtiorhtherihgtjkerhgjkhergtjkherjkh49ryhui4thg754tdfjlsdkhioerhgiohruioghejiogfuioerhgfiohrjkfhasdjkhgiuhgiorgjkdfhgidfgsdkljfkldsjfklsdjklfjdklsfjkldghsk");
-        }
-        catch (TweetTooLongException e) {
-            Log.e("Error ---->", "Tweet message too long");
+            FileInputStream fis = openFileInput(FILENAME);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-        }
+            Gson gson = new Gson();
+
+            // Taken from https://stackoverflow.com/questions/12384064/gson-convert-from-json-to-a-typed-arraylistt
+            // 2018-01-25
+            Type listType = new TypeToken<ArrayList<NormalTweet>>() {
+            }.getType();
+            tweetList = gson.fromJson(in, listType);
 
 
-        ImportantTweet importantTweet1 = new ImportantTweet("Hello World! This is important");
-        ImportantTweet importantTweet2 = new ImportantTweet("This is another important tweet");
-
-        NormalTweet normalTweet1 = new NormalTweet("This is not that important");
-        NormalTweet normalTweet2 = new NormalTweet("This is not that important either");
-
-        ArrayList <Tweet> tweetList = new ArrayList<Tweet>();
-        tweetList.add(normalTweet);
-        tweetList.add(normalTweet1);
-        tweetList.add(normalTweet2);
-        tweetList.add(importantTweet1);
-        tweetList.add(importantTweet2);
-
-        for (Tweet t:
-                tweetList) {
-            Log.d("Tweet Polymorphism", t.isImportant().toString());
-
+        } catch (FileNotFoundException e) {
+            tweetList = new ArrayList<Tweet>();
+        } catch (IOException e) {
+            throw new RuntimeException();
         }
 
-
-        ArrayList <Tweetable> tweetableList = new ArrayList<Tweetable>();
-        tweetableList.add(normalTweet);
-        tweetableList.add(normalTweet1);
-        tweetableList.add(normalTweet2);
-        tweetableList.add(importantTweet1);
-        tweetableList.add(importantTweet2);
-
-        String messageOnScreen = "";
-        for (Tweetable t:
-             tweetableList) {
-            messageOnScreen += t.getMessage() + "\n";
-        }
-        Toast.makeText(this, messageOnScreen, Toast.LENGTH_SHORT).show();
-
-	}
-
-	private void loadFromFile() {
-
-		try {
-			FileInputStream fis = openFileInput(FILENAME);
-			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-			Gson gson = new Gson();
-
-			// Taken from https://stackoverflow.com/questions/12384064/gson-convert-from-json-to-a-typed-arraylistt
-			// 2018-01-25
-			Type listType = new TypeToken<ArrayList<NormalTweet>>(){}.getType();
-			tweetList = gson.fromJson(in, listType);
-
-
-		} catch (FileNotFoundException e) {
-			tweetList = new ArrayList<Tweet>();
-		} catch (IOException e) {
-			throw new RuntimeException();
-		}
-
-	}
+    }
 
 
     private void saveInFile() {
@@ -160,11 +133,12 @@ public class LonelyTwitterActivity extends Activity {
         } catch (IOException e) {
             throw new RuntimeException();
         }
+    }
 
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		Log.i("Lifecycle", "onDestroy is called");
-	}
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("Lifecycle", "onDestroy is called");
+    }
 }
+
