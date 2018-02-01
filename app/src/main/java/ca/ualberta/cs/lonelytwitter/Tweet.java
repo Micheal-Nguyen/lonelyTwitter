@@ -1,7 +1,5 @@
 package ca.ualberta.cs.lonelytwitter;
 
-import android.util.Log;
-
 import java.util.Date;
 
 /**
@@ -13,7 +11,7 @@ public abstract class Tweet implements Tweetable {
     private Date date;
 
     Tweet(String message){
-        Log.i("yolo","anotherone");
+
         this.message = message;
         date = new Date();
 //        message = message;
@@ -48,7 +46,6 @@ public abstract class Tweet implements Tweetable {
     public abstract Boolean isImportant();
 
     public String toString() {
-        Log.i("test",date.toString() + " | " + message);
         return date.toString() + " | " + message;
     }
 }
