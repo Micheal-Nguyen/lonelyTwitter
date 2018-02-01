@@ -56,13 +56,12 @@ public class LonelyTwitterActivity extends Activity {
             public void onClick(View v) {
                 setResult(RESULT_OK);
                 String text = bodyText.getText().toString();
-
                 Tweet tweet = new NormalTweet(text);
+                Log.i("k","s");
                 tweetList.add(tweet);
-
                 adapter.notifyDataSetChanged();
-
                 saveInFile();
+
 
             }
         });
