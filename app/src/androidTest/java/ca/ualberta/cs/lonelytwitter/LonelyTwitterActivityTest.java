@@ -76,7 +76,7 @@ public class LonelyTwitterActivityTest extends ActivityInstrumentationTestCase2 
 
     }
 
-    public void testTweetInEditTweetActivity(){
+    public void testTweetInEdit(){
         LonelyTwitterActivity activity = (LonelyTwitterActivity)solo.getCurrentActivity();
 
         solo.assertCurrentActivity("Wrong Activity", LonelyTwitterActivity.class);

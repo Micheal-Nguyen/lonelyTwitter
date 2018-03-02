@@ -71,7 +71,7 @@ public class LonelyTwitterActivity extends Activity {
 				saveInFile();
 			}
 		});
-
+		//added intent
 		oldTweetsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 				Tweet intentTweet = tweetList.get(i);

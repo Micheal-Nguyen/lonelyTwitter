@@ -11,6 +11,7 @@ public class EditTweetActivity extends Activity {
 
     private TextView tweetView;
 
+    //added intent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
